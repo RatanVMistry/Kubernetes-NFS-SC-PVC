@@ -1,0 +1,4 @@
+For this project follow steps below
+
+Step 1 : If you dont have NFS server configured, configured that first using NFS-Setup-On-CentOS7
+Step 2 : Setup NFS for kubernetes dynamic persistence volume storage Setup-NFS-On-Kubernetes-For-SC-PV-PVC
