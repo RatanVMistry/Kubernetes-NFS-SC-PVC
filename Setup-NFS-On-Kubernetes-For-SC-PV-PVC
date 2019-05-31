@@ -1,0 +1,82 @@
+Pre-req:
+
+We need already configured NFS server 
+You can follow the document NFS-Setup-On-CentOS7
+
+you have to collect the NFS server ip : x.x.x.x
+nfs mounted folder (which you can find from the NFS server 'cat /etc/exports')
+
+Install helm on kuubernetes cluster 
+
+There are multiple ways to install helm you can choose any one from them
+I am providing simple two ways which is provided on official Helm documentation
+
+>> curl -LO https://git.io/get_helm.sh
+>> chmod 700 get_helm.sh
+>>./get_helm.sh 
+
+OR
+
+>> curl -L https://git.io/get_helm.sh | bash
+
+After that install tiller 
+>> helm init 
+
+You can follow this official document from Helm 
+
+https://helm.sh/docs/using_helm/#installing-helm
+
+When you successfully installed helm on kubuernetes cluster you can start with installing NFS helm chart 
+
+-------------------------NFS for SC-PVC-PV-------------------
+
+If your kubernetes cluster have Internet connectivity use this command to install helm chart on kubernetes cluster 
+>> helm install --name "nfs-release123" --set nfs.server="x.x.x.x",nfs.path="/data/nfs/kubernetes",storageClass.name="nfs-storage-class-abc",rbac.create=true,storageClass.provisionerName="nfsclientprov/nfs",serviceAccount.create=true,serviceAccount.name="nfs-svc-acc-abc" stable/nfs-client-provisioner
+
+
+If your kubernets master have Internet connectivity then you don't need below step:
+
+In your local machine install git command line tool 
+
+after that clone the helm charts from the git 
+
+>> git clone https://github.com/helm/charts.git
+>> cd charts/stable
+>> tar -czvf nfs-client-provisioner.tar.gz nfs-client-provisioner/
+
+send that tar with scp to your kubernetes master node 
+
+Installing Helm chart on k8s cluster from chart folder
+
+ssh to kubernetes master vm 
+untar the chart tar package 
+>> cd nfs-client-provisioner
+>> helm install --name "nfs-release123" --set nfs.server="x.x.x.x",nfs.path="/data/nfs/kubernetes",storageClass.name="nfs-storage-class-abc",rbac.create=true,storageClass.provisionerName="nfsclientprov/nfs",serviceAccount.create=true,serviceAccount.name="nfs-svc-acc-abc" .
+
+
+for this command you can change as per your requirement:
+nfs.server = your nfs server's IP address or fqdn 
+nfs.path = path from nfs server which you provided in /etc/exports
+
+
+For testing :
+I already uploaded two yaml files for wordpress deployment 
+- wordpress-mysql.yaml  
+- wordpress-web.yaml
+you can download those files and use that for deployment 
+follow the steps
+
+kubectl create -f wordpress-mysql.yaml (wait for the pod to come up in running state)
+kubectl create -f wordpress-web.yaml (wait for the pod to come up in running state)
+
+For validation :
+
+kubectl get sc (this will give storage class. You can see one storage class for nfs)
+kubectl get pvc (this will give persistence volume claim you can see two one for mysql and one for web)
+kubectl get pods (this will give 3 pods one for nfs , one for msql and one for wordpress web)
+
+You can go to NFS server and check the directory which you provided in /etc/exports in my case its /data/nfs/kubernetes
+you can see the two folder for pvc 
+
+
+

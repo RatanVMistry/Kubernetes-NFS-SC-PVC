@@ -1,0 +1,38 @@
+IF you add new disc to your machine you need to follow this steps to add that newly created disc to machine:
+
+add new disk volume and then mount that to your system 
+
+fdisk -l
+
+fdisk /dev/sdb
+
+You can follow this link for mount disc to machine
+
+https://www.osradar.com/install-nfs-server-client-centos7-redhat-7/
+
+
+SSH to the plain CentOS machine
+>> yum install nfs-utils -y
+>> systemctl enable rpcbind
+>> systemctl enable nfs-server
+>> systemctl enable nfs-lock
+>> systemctl enable nfs-idmap
+>> systemctl start rpcbind
+>> systemctl start nfs-server
+>> systemctl start nfs-lock
+>> systemctl start nfs-idmap
+>> mkdir -p /data/nfs/kubernetes
+>> chmod -R 777 /data/nfs/
+
+>> vi /etc/exports
+/data/nfs/kubernetes	*(rw,sync,no_root_squash,no_subtree_check,insecure)
+
+(Main thing to point here is you can provide the ip address or the CIDR at the place of (*) and make sure for now you put the same rules here for example you can change that rules per your requirement)
+
+>> exportfs -rav
+>> exportfs -v
+>> showmount -e
+
+Reference document for NFS setting: 
+
+https://www.howtoforge.com/tutorial/setting-up-an-nfs-server-and-client-on-centos-7/
